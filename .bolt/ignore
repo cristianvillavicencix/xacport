@@ -1,0 +1,6 @@
+public/Taking photos for Claims.pdf
+*.psd
+*.zip
+*.mp4
+node_modules/*
+test/*

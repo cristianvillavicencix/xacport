@@ -1,0 +1,667 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+type Language = 'es' | 'en';
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (language: Language) => void;
+  t: (key: string) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+const translations = {
+  es: {
+    // Header
+    'header.title': 'Latinos Business Support',
+    'header.subtitle': 'Plataforma de Estimados Profesionales',
+    
+    // Steps
+    'steps.client_registration': 'Registro de cliente',
+    'steps.loss_summary': 'Resumen de pérdida',
+    'steps.property_claim_info': 'Información de propiedad y claim',
+    'steps.measurements_photos': 'Medidas y fotos',
+    'steps.scope_details': 'Detalles del scope',
+    'steps.my_cart': 'Mi carrito',
+    'steps.checkout': 'Finalizar compra',
+    
+    // Progress
+    'progress.completed': 'completado',
+    'progress.title': 'Progreso',
+    'progress.step': 'Paso',
+    'progress.of': 'de',
+    
+    // Common buttons
+    'button.back': 'Atrás',
+    'button.continue': 'Continuar',
+    'button.cancel': 'Cancelar',
+    'button.confirm': 'Confirmar',
+    'button.yes': 'Sí',
+    'button.no': 'No',
+    'button.select_file': 'Elegir Archivo',
+    'button.upload_files': 'Elegir Archivos',
+    'button.next': 'Siguiente',
+    'button.previous': 'Anterior',
+    'button.save': 'Guardar',
+    'button.submit': 'Enviar',
+    'button.complete': 'Completar',
+    'button.register_continue': 'Registrar y Continuar',
+    'button.proceed_checkout': 'Proceder al Checkout',
+    'button.continue_cart': 'Continuar al Carrito',
+    
+    // Client Registration
+    'client.title': 'Registro de Cliente',
+    'client.subtitle': '¿Eres un cliente existente o necesitas registrarte?',
+    'client.existing': 'Sí, soy cliente existente',
+    'client.existing_desc': 'Ya trabajo con ustedes',
+    'client.new': 'No, me gustaría registrarme',
+    'client.new_desc': 'Es mi primera vez aquí',
+    'client.existing_info': 'Cliente Existente',
+    'client.existing_help': 'Por favor ingresa tu correo electrónico para acceder a tu cuenta.',
+    'client.contact_info': 'Información de Contacto',
+    'client.company_info': 'Información de la Empresa',
+    'client.full_name': 'Nombre Completo',
+    'client.full_name_placeholder': 'Nombre y Apellido',
+    'client.contact_address': 'Dirección de Contacto',
+    'client.contact_address_placeholder': 'Dirección completa',
+    'client.email': 'Correo Electrónico',
+    'client.email_placeholder': 'correo@ejemplo.com',
+    'client.phone': 'Número de Teléfono',
+    'client.phone_placeholder': '(555) 123-4567',
+    'client.company_name': 'Nombre de la Empresa',
+    'client.company_name_placeholder': 'Nombre de tu empresa',
+    'client.company_logo': 'Logo de la Empresa (opcional)',
+    'client.company_logo_desc': 'Sube el logo de tu empresa',
+    'client.company_address': 'Dirección de la Empresa',
+    'client.company_address_placeholder': 'Dirección de la empresa',
+    'client.same_address': 'Misma dirección que el contacto',
+    'client.logo_selected': 'Logo seleccionado:',
+    'client.address_info': 'Dirección:',
+    'client.address_enter_first': 'Ingresa la dirección de contacto primero',
+    
+    // Loss Summary
+    'loss.title': 'Comencemos',
+    'loss.subtitle': '¿Tienes un scope del seguro existente o necesitas que creemos uno nuevo para enviar al seguro?',
+    'loss.have_scope': 'Sí, ya tengo un scope',
+    'loss.have_scope_desc': 'Tengo documentos del seguro para subir',
+    'loss.create_new': 'No, necesito que creen uno',
+    'loss.create_new_desc': 'Quiero que ustedes hagan el scope completo',
+    'loss.upload_scope': 'Sube tu scope del seguro existente',
+    'loss.upload_scope_desc': 'Archivo PDF del scope proporcionado por la aseguradora',
+    'loss.additional_docs': '¿Quieres agregar otros documentos?',
+    'loss.additional_yes': 'Sí, tengo más documentos',
+    'loss.additional_yes_desc': 'Quiero agregar fotos o reportes',
+    'loss.additional_no': 'No, solo el scope está bien',
+    'loss.additional_no_desc': 'Con eso es suficiente por ahora',
+    'loss.upload_additional': 'Sube documentos adicionales',
+    'loss.upload_additional_desc': 'Fotos, reportes, documentos de apoyo',
+    'loss.format_question': '¿En qué formato quieres el estimado?',
+    'loss.format_xactimate': 'Xactimate',
+    'loss.format_xactimate_desc': 'Formato estándar de la industria',
+    'loss.format_xactimate_price': 'Precio base',
+    'loss.format_symbility': 'Symbility',
+    'loss.format_symbility_desc': 'Formato alternativo de estimación',
+    'loss.format_symbility_price': '+$20 USD extra',
+    'loss.symbility_cost': 'Costo Adicional',
+    'loss.symbility_cost_desc': 'El formato Symbility tiene un costo adicional de $20 USD que se agregará al precio final de tu paquete seleccionado.',
+    'loss.info_title': 'Información importante',
+    'loss.info_existing': 'Revisaremos tu scope existente y lo procesaremos según tus necesidades.',
+    'loss.info_new': 'Crearemos un scope/estimado profesional en el formato seleccionado para enviar a tu compañía de seguros.',
+    
+    // Job Claim Information
+    'job.title': 'Información de la Propiedad y Claim',
+    'job.subtitle': 'Por favor proporciona la información de la propiedad y los detalles del claim de seguro.',
+    'job.property_info': 'Información de la Propiedad',
+    'job.claim_info': 'Información del Claim',
+    'job.property_address': 'Dirección de la Propiedad',
+    'job.property_address_placeholder': 'Dirección completa de la propiedad',
+    'job.homeowner_name': 'Nombre del Dueño de la Casa',
+    'job.homeowner_name_placeholder': 'Nombre completo del propietario',
+    'job.loss_type': 'Tipo de pérdida',
+    'job.loss_type_placeholder': 'Selecciona el tipo de pérdida',
+    'job.loss_date': 'Fecha de la pérdida (opcional)',
+    'job.claim_number': 'Número de claim (opcional)',
+    'job.claim_number_placeholder': 'Número de claim',
+    'job.insurance_company': 'Compañía de seguros (opcional)',
+    'job.insurance_company_placeholder': 'Buscar aseguradora',
+    'job.estimate_info': 'Información del Estimado',
+    'job.estimate_info_desc': 'Esta información será utilizada para crear el estimado profesional y será incluida en toda la documentación del claim.',
+    'job.search_results': 'Mostrando los primeros 10 resultados. Continúa escribiendo para filtrar...',
+    
+    // Measurements Photos
+    'measurements.title': 'Medidas y Fotos',
+    'measurements.subtitle': 'Proporciona las medidas y fotos necesarias para crear un estimado preciso.',
+    'measurements.section_title': 'Medidas',
+    'measurements.section_desc': 'Soportamos los siguientes documentos PDF: Eagleview, Hover, Roofr, GAF, RoofGraf. Sube todas las medidas necesarias para escribir el estimado, o podemos ordenar un Eagleview adicional si es necesario.',
+    'measurements.provide_yes': 'Sí, las tengo',
+    'measurements.provide_yes_desc': 'Tengo mis propias medidas en PDF',
+    'measurements.provide_no': 'No, necesito que las ordenen',
+    'measurements.provide_no_desc': 'Prefiero que ustedes se encarguen',
+    'measurements.provide_no_price': 'Desde $25 USD',
+    'measurements.upload_title': 'Sube tu archivo de medidas',
+    'measurements.upload_desc': 'Archivos PDF de Eagleview, Hover, Roofr, GAF, RoofGraf',
+    'measurements.type_question': '¿Qué tipo de medidas necesitas?',
+    'measurements.type_full': 'Medidas Completas',
+    'measurements.type_full_desc': 'Incluye siding, ventanas, puertas y techo',
+    'measurements.type_full_price': '$50 USD - Más completo y detallado',
+    'measurements.type_roof': 'Solo Techo',
+    'measurements.type_roof_desc': 'Medidas únicamente del techo',
+    'measurements.type_roof_price': '$25 USD - Más económico y rápido',
+    'measurements.cost_info': 'Información de Costos',
+    'measurements.cost_full_desc': 'Las medidas completas incluyen todas las superficies exteriores e interiores necesarias para un estimado detallado. Costo: $50 USD',
+    'measurements.cost_roof_desc': 'Las medidas solo del techo se enfocan únicamente en la superficie del techo. Costo: $25 USD',
+    'measurements.cost_select': 'Selecciona el tipo de medidas para ver información de costos.',
+    'measurements.guide_download': '📋 Descargar guía para tomar medidas completas',
+    'measurements.photos_title': 'Fotos',
+    'measurements.photos_desc': 'Las fotos nos ayudan a crear un scope preciso y serán incluidas en tu Reporte de Inspección de Latinos Business Support.',
+    'measurements.photos_tip': 'Para mejores resultados, recomendamos agregar tomas de cerca y amplias de todos los componentes relevantes, daños y cuadrados de prueba.',
+    'measurements.photos_method': '¿Cómo quieres agregar fotos a este trabajo?',
+    'measurements.photos_companycam': 'Tengo un enlace de CompanyCam',
+    'measurements.photos_googledrive': 'Tengo un enlace de Google Drive',
+    'measurements.photos_upload': 'Subiré fotos directamente',
+    'measurements.photos_none': 'Escribir este estimado sin fotos',
+    'measurements.companycam_link': 'Enlace de CompanyCam',
+    'measurements.companycam_placeholder': 'https://companycam.com/project/...',
+    'measurements.googledrive_link': 'Enlace de Google Drive',
+    'measurements.googledrive_placeholder': 'https://drive.google.com/...',
+    'measurements.upload_photos_title': 'Sube tus fotos aquí',
+    'measurements.upload_photos_desc': 'Imágenes de daños, componentes y áreas relevantes',
+    
+    // Scope Details
+    'scope.title': 'Detalles del Scope',
+    'scope.subtitle': 'Configura los detalles específicos de tu estimado según tus necesidades.',
+    'scope.style_title': 'Estilo de Estimado',
+    'scope.style_standard': 'Estándar',
+    'scope.style_standard_desc': 'Estimado conservador y realista',
+    'scope.style_standard_note': 'Recomendado para la mayoría de casos',
+    'scope.style_aggressive': 'Agresivo',
+    'scope.style_aggressive_desc': 'Estimado más completo y detallado',
+    'scope.style_aggressive_note': 'Incluye todos los componentes posibles',
+    'scope.style_differences': 'Diferencias entre estilos:',
+    'scope.style_standard_detail': 'Incluye los elementos esenciales y necesarios para la reparación.',
+    'scope.style_aggressive_detail': 'Incluye elementos adicionales, mejoras y componentes que podrían estar relacionados con el daño.',
+    'scope.type_title': 'Tipo de Estimado',
+    'scope.type_roof': 'Solo Techo',
+    'scope.type_roof_desc': 'Estimado enfocado únicamente en el techo',
+    'scope.type_siding': 'Revestimiento',
+    'scope.type_siding_desc': 'Estimado para revestimiento exterior',
+    'scope.type_asbestos': 'Asbesto',
+    'scope.type_asbestos_desc': 'Estimado especializado en asbesto',
+    'scope.type_interior': 'Interior',
+    'scope.type_interior_desc': 'Estimado para daños interiores',
+    'scope.type_combined': 'Combinado',
+    'scope.type_combined_desc': 'Estimado combinado (múltiples áreas)',
+    'scope.items_title': 'Elementos del Scope',
+    'scope.notes_title': 'Notas Adicionales o Instrucciones Especiales',
+    'scope.notes_placeholder': 'Proporciona cualquier detalle adicional, áreas específicas de preocupación, o instrucciones especiales para el estimado...',
+    'scope.estimate_details': 'Detalles del Estimado',
+    'scope.estimate_details_desc': 'Tu estimado incluirá líneas detalladas, medidas, precios y códigos para todos los elementos seleccionados del scope.',
+    'scope.estimate_aggressive_note': 'El estilo agresivo incluirá componentes adicionales y mejoras relacionadas.',
+    'scope.estimate_standard_note': 'El estilo estándar se enfocará en los elementos esenciales.',
+    
+    // My Cart
+    'cart.title': 'Mi Carrito',
+    'cart.subtitle': 'Selecciona el paquete de estimado que mejor se adapte a tus necesidades.',
+    'cart.package_basic': 'Estimado Básico',
+    'cart.package_standard': 'Estimado Estándar',
+    'cart.package_premium': 'Estimado Premium',
+    'cart.delivery_basic': '2-3 días hábiles',
+    'cart.delivery_standard': '1-2 días hábiles',
+    'cart.delivery_premium': 'Mismo día',
+    'cart.selected': 'Seleccionado',
+    'cart.includes_title': 'Lo que incluye tu paquete seleccionado:',
+    'cart.always_included': 'Siempre incluido:',
+    'cart.additional_features': 'Adicionales según paquete:',
+    'cart.feature_codes': 'Códigos de construcción',
+    'cart.feature_estimate': 'Estimado profesional Xactimate',
+    'cart.feature_pricing': 'Precios de mercado actualizados',
+    'cart.feature_support_letter': 'Carta de apoyo al seguro',
+    'cart.feature_diagrams': 'Diagramas y esquemas técnicos',
+    'cart.feature_revision': 'Una revisión incluida',
+    'cart.total': 'Total:',
+    'cart.symbility_extra': 'Formato Symbility (extra)',
+    'cart.measurements_full': 'Medidas Completas',
+    'cart.measurements_roof': 'Medidas Solo Techo',
+    
+    // Checkout
+    'checkout.title': 'Finalizar Compra',
+    'checkout.subtitle': 'Completa tu pedido para comenzar con tu estimado profesional.',
+    'checkout.order_summary': 'Resumen del Pedido',
+    'checkout.delivery': 'Entrega:',
+    'checkout.card_number': 'Número de Tarjeta',
+    'checkout.card_number_placeholder': '1234 5678 9012 3456',
+    'checkout.expiry_date': 'Fecha de Vencimiento',
+    'checkout.expiry_placeholder': 'MM/AA',
+    'checkout.cvv': 'CVV',
+    'checkout.cvv_placeholder': '123',
+    'checkout.cardholder_name': 'Nombre del Titular',
+    'checkout.cardholder_placeholder': 'Juan Pérez',
+    'checkout.billing_address': 'Dirección de Facturación',
+    'checkout.billing_placeholder': '123 Calle Principal',
+    'checkout.city': 'Ciudad',
+    'checkout.city_placeholder': 'Ciudad',
+    'checkout.state': 'Estado',
+    'checkout.state_placeholder': 'Estado',
+    'checkout.zip_code': 'Código Postal',
+    'checkout.zip_placeholder': '12345',
+    'checkout.security_note': 'Tu información de pago es segura y está encriptada.',
+    'checkout.processing': 'Procesando...',
+    'checkout.complete_payment': 'Completar',
+    
+    // Order Complete
+    'complete.title': '¡Pedido Completado!',
+    'complete.subtitle': 'Gracias por tu pedido. Hemos recibido tu información y comenzaremos a procesar tu estimado Xactimate inmediatamente.',
+    'complete.what_next': '¿Qué sigue?',
+    'complete.review_time': '• Nuestro equipo revisará tu envío dentro de 2 horas',
+    'complete.email_confirmation': '• Recibirás un correo de confirmación con los detalles de tu pedido',
+    'complete.delivery_time': '• Tu estimado será entregado dentro de',
+    'complete.dashboard_access': '• Tendrás acceso a tu panel personal para seguir el progreso',
+    'complete.estimated_delivery': 'Entrega Estimada',
+    'complete.order_confirmation': 'Confirmación del Pedido',
+    'complete.sent_to': 'Enviado a',
+    'complete.order_summary_title': 'Resumen del Pedido',
+    'complete.property': 'Propiedad:',
+    'complete.loss_type': 'Tipo de Pérdida:',
+    'complete.scope_items': 'Elementos del Scope:',
+    'complete.scope_selected': 'seleccionados',
+    'complete.format': 'Formato:',
+    'complete.measurements': 'Medidas:',
+    'complete.download_receipt': 'Descargar Recibo del Pedido',
+    'complete.track_order': 'Seguir Estado del Pedido',
+    
+    // File Upload
+    'file.drag_drop': 'Arrastra y suelta o haz clic para buscar',
+    'file.choose_files': 'Elegir Archivos',
+    'file.max_size': 'Máximo',
+    'file.per_file': 'por archivo',
+    'file.selected_files': 'Archivos seleccionados:',
+    'file.too_large': 'es demasiado grande. Máximo',
+    'file.file_error': 'El archivo',
+    
+    // Footer
+    'footer.description': 'Especialistas en estimados profesionales para contratistas. Servicio rápido y confiable.',
+    'footer.contact': 'Contacto',
+    'footer.office': 'Oficina',
+    'footer.rights': 'Todos los derechos reservados.',
+    
+    // Validation messages
+    'validation.cancel_message': '¿Estás seguro de que quieres cancelar? Se perderá toda la información ingresada.',
+    'validation.required': 'Este campo es requerido',
+    'validation.email_invalid': 'Por favor ingresa un correo electrónico válido',
+    'validation.phone_invalid': 'Por favor ingresa un número de teléfono válido',
+    'validation.email_required': 'El correo electrónico es requerido',
+    'validation.name_required': 'El nombre completo es requerido',
+    'validation.company_required': 'El nombre de la empresa es requerido',
+    'validation.address_required': 'La dirección es requerida',
+    'validation.phone_required': 'El número de teléfono es requerido',
+    
+    // Theme
+    'theme.light': 'Claro',
+    'theme.dark': 'Oscuro',
+    'theme.system': 'Sistema',
+    
+    // Language
+    'language.spanish': 'Español',
+    'language.english': 'English',
+    
+    // Loss types
+    'loss_type.fire': 'Incendio',
+    'loss_type.water': 'Agua',
+    'loss_type.storm': 'Tormenta',
+    'loss_type.theft': 'Robo',
+    'loss_type.vandalism': 'Vandalismo',
+    'loss_type.earthquake': 'Terremoto',
+    'loss_type.flood': 'Inundación',
+    'loss_type.wind': 'Viento',
+    'loss_type.hail': 'Granizo',
+    'loss_type.other': 'Otro'
+  },
+  en: {
+    // Header
+    'header.title': 'Latinos Business Support',
+    'header.subtitle': 'Professional Estimates Platform',
+    
+    // Steps
+    'steps.client_registration': 'Client registration',
+    'steps.loss_summary': 'Loss summary',
+    'steps.property_claim_info': 'Property and claim information',
+    'steps.measurements_photos': 'Measurements and photos',
+    'steps.scope_details': 'Scope details',
+    'steps.my_cart': 'My cart',
+    'steps.checkout': 'Checkout',
+    
+    // Progress
+    'progress.completed': 'completed',
+    'progress.title': 'Progress',
+    'progress.step': 'Step',
+    'progress.of': 'of',
+    
+    // Common buttons
+    'button.back': 'Back',
+    'button.continue': 'Continue',
+    'button.cancel': 'Cancel',
+    'button.confirm': 'Confirm',
+    'button.yes': 'Yes',
+    'button.no': 'No',
+    'button.select_file': 'Select File',
+    'button.upload_files': 'Choose Files',
+    'button.next': 'Next',
+    'button.previous': 'Previous',
+    'button.save': 'Save',
+    'button.submit': 'Submit',
+    'button.complete': 'Complete',
+    'button.register_continue': 'Register and Continue',
+    'button.proceed_checkout': 'Proceed to Checkout',
+    'button.continue_cart': 'Continue to Cart',
+    
+    // Client Registration
+    'client.title': 'Client Registration',
+    'client.subtitle': 'Are you an existing client or do you need to register?',
+    'client.existing': 'Yes, I\'m an existing client',
+    'client.existing_desc': 'I already work with you',
+    'client.new': 'No, I\'d like to register',
+    'client.new_desc': 'This is my first time here',
+    'client.existing_info': 'Existing Client',
+    'client.existing_help': 'Please enter your email address to access your account.',
+    'client.contact_info': 'Contact Information',
+    'client.company_info': 'Company Information',
+    'client.full_name': 'Full Name',
+    'client.full_name_placeholder': 'First and Last Name',
+    'client.contact_address': 'Contact Address',
+    'client.contact_address_placeholder': 'Complete address',
+    'client.email': 'Email Address',
+    'client.email_placeholder': 'email@example.com',
+    'client.phone': 'Phone Number',
+    'client.phone_placeholder': '(555) 123-4567',
+    'client.company_name': 'Company Name',
+    'client.company_name_placeholder': 'Your company name',
+    'client.company_logo': 'Company Logo (optional)',
+    'client.company_logo_desc': 'Upload your company logo',
+    'client.company_address': 'Company Address',
+    'client.company_address_placeholder': 'Company address',
+    'client.same_address': 'Same address as contact',
+    'client.logo_selected': 'Logo selected:',
+    'client.address_info': 'Address:',
+    'client.address_enter_first': 'Enter contact address first',
+    
+    // Loss Summary
+    'loss.title': 'Let\'s Get Started',
+    'loss.subtitle': 'Do you have an existing insurance scope or do you need us to create a new one to send to insurance?',
+    'loss.have_scope': 'Yes, I already have one',
+    'loss.have_scope_desc': 'I have insurance documents to upload',
+    'loss.create_new': 'No, I need you to create one',
+    'loss.create_new_desc': 'I want you to do the complete scope',
+    'loss.upload_scope': 'Upload your existing insurance scope',
+    'loss.upload_scope_desc': 'PDF file of scope provided by insurance company',
+    'loss.additional_docs': 'Do you want to add other documents?',
+    'loss.additional_yes': 'Yes, I have more documents',
+    'loss.additional_yes_desc': 'I want to add photos or reports',
+    'loss.additional_no': 'No, just the scope is fine',
+    'loss.additional_no_desc': 'That\'s enough for now',
+    'loss.upload_additional': 'Upload additional documents',
+    'loss.upload_additional_desc': 'Photos, reports, supporting documents',
+    'loss.format_question': 'What format do you want the estimate in?',
+    'loss.format_xactimate': 'Xactimate',
+    'loss.format_xactimate_desc': 'Industry standard format',
+    'loss.format_xactimate_price': 'Base price',
+    'loss.format_symbility': 'Symbility',
+    'loss.format_symbility_desc': 'Alternative estimation format',
+    'loss.format_symbility_price': '+$20 USD extra',
+    'loss.symbility_cost': 'Additional Cost',
+    'loss.symbility_cost_desc': 'Symbility format has an additional cost of $20 USD that will be added to the final price of your selected package.',
+    'loss.info_title': 'Important Information',
+    'loss.info_existing': 'We will review your existing scope and process it according to your needs.',
+    'loss.info_new': 'We will create a professional scope/estimate in the selected format to send to your insurance company.',
+    
+    // Job Claim Information
+    'job.title': 'Property and Claim Information',
+    'job.subtitle': 'Please provide the property information and insurance claim details.',
+    'job.property_info': 'Property Information',
+    'job.claim_info': 'Claim Information',
+    'job.property_address': 'Property Address',
+    'job.property_address_placeholder': 'Complete property address',
+    'job.homeowner_name': 'Homeowner Name',
+    'job.homeowner_name_placeholder': 'Property owner full name',
+    'job.loss_type': 'Type of Loss',
+    'job.loss_type_placeholder': 'Select type of loss',
+    'job.loss_date': 'Date of Loss (optional)',
+    'job.claim_number': 'Claim Number (optional)',
+    'job.claim_number_placeholder': 'Claim number',
+    'job.insurance_company': 'Insurance Company (optional)',
+    'job.insurance_company_placeholder': 'Search insurance company',
+    'job.estimate_info': 'Estimate Information',
+    'job.estimate_info_desc': 'This information will be used to create the professional estimate and will be included in all claim documentation.',
+    'job.search_results': 'Showing first 10 results. Continue typing to filter...',
+    
+    // Measurements Photos
+    'measurements.title': 'Measurements and Photos',
+    'measurements.subtitle': 'Provide the measurements and photos needed to create an accurate estimate.',
+    'measurements.section_title': 'Measurements',
+    'measurements.section_desc': 'We support the following PDF documents: Eagleview, Hover, Roofr, GAF, RoofGraf. Upload all measurements needed to write the estimate, or we can order an additional Eagleview if necessary.',
+    'measurements.provide_yes': 'Yes, I have them',
+    'measurements.provide_yes_desc': 'I have my own measurements in PDF',
+    'measurements.provide_no': 'No, I need you to order them',
+    'measurements.provide_no_desc': 'I prefer you handle this',
+    'measurements.provide_no_price': 'From $25 USD',
+    'measurements.upload_title': 'Upload your measurements file',
+    'measurements.upload_desc': 'PDF files from Eagleview, Hover, Roofr, GAF, RoofGraf',
+    'measurements.type_question': 'What type of measurements do you need?',
+    'measurements.type_full': 'Full Measurements',
+    'measurements.type_full_desc': 'Includes siding, windows, doors and roof',
+    'measurements.type_full_price': '$50 USD - More complete and detailed',
+    'measurements.type_roof': 'Roof Only',
+    'measurements.type_roof_desc': 'Measurements for roof only',
+    'measurements.type_roof_price': '$25 USD - More economical and faster',
+    'measurements.cost_info': 'Cost Information',
+    'measurements.cost_full_desc': 'Full measurements include all exterior and interior surfaces needed for a detailed estimate. Cost: $50 USD',
+    'measurements.cost_roof_desc': 'Roof-only measurements focus solely on the roof surface. Cost: $25 USD',
+    'measurements.cost_select': 'Select measurement type to see cost information.',
+    'measurements.guide_download': '📋 Download guide for taking full measurements',
+    'measurements.photos_title': 'Photos',
+    'measurements.photos_desc': 'Photos help us create an accurate scope and will be included in your Latinos Business Support Inspection Report.',
+    'measurements.photos_tip': 'For best results, we recommend adding close-up and wide shots of all relevant components, damage, and test squares.',
+    'measurements.photos_method': 'How do you want to add photos to this job?',
+    'measurements.photos_companycam': 'I have a CompanyCam link',
+    'measurements.photos_googledrive': 'I have a Google Drive link',
+    'measurements.photos_upload': 'I will upload photos directly',
+    'measurements.photos_none': 'Write this estimate without photos',
+    'measurements.companycam_link': 'CompanyCam Link',
+    'measurements.companycam_placeholder': 'https://companycam.com/project/...',
+    'measurements.googledrive_link': 'Google Drive Link',
+    'measurements.googledrive_placeholder': 'https://drive.google.com/...',
+    'measurements.upload_photos_title': 'Upload your photos here',
+    'measurements.upload_photos_desc': 'Images of damage, components and relevant areas',
+    
+    // Scope Details
+    'scope.title': 'Scope Details',
+    'scope.subtitle': 'Configure the specific details of your estimate according to your needs.',
+    'scope.style_title': 'Estimate Style',
+    'scope.style_standard': 'Standard',
+    'scope.style_standard_desc': 'Conservative and realistic estimate',
+    'scope.style_standard_note': 'Recommended for most cases',
+    'scope.style_aggressive': 'Aggressive',
+    'scope.style_aggressive_desc': 'More complete and detailed estimate',
+    'scope.style_aggressive_note': 'Includes all possible components',
+    'scope.style_differences': 'Differences between styles:',
+    'scope.style_standard_detail': 'Includes essential and necessary elements for repair.',
+    'scope.style_aggressive_detail': 'Includes additional elements, improvements and components that could be related to damage.',
+    'scope.type_title': 'Estimate Type',
+    'scope.type_roof': 'Roof Only',
+    'scope.type_roof_desc': 'Estimate focused solely on roof',
+    'scope.type_siding': 'Siding',
+    'scope.type_siding_desc': 'Estimate for exterior siding',
+    'scope.type_asbestos': 'Asbestos',
+    'scope.type_asbestos_desc': 'Specialized asbestos estimate',
+    'scope.type_interior': 'Interior',
+    'scope.type_interior_desc': 'Estimate for interior damage',
+    'scope.type_combined': 'Combined',
+    'scope.type_combined_desc': 'Combined estimate (multiple areas)',
+    'scope.items_title': 'Scope Items',
+    'scope.notes_title': 'Additional Notes or Special Instructions',
+    'scope.notes_placeholder': 'Provide any additional details, specific areas of concern, or special instructions for the estimate...',
+    'scope.estimate_details': 'Estimate Details',
+    'scope.estimate_details_desc': 'Your estimate will include detailed line items, measurements, prices and codes for all selected scope elements.',
+    'scope.estimate_aggressive_note': 'Aggressive style will include additional components and related improvements.',
+    'scope.estimate_standard_note': 'Standard style will focus on essential elements.',
+    
+    // My Cart
+    'cart.title': 'My Cart',
+    'cart.subtitle': 'Select the estimate package that best fits your needs.',
+    'cart.package_basic': 'Basic Estimate',
+    'cart.package_standard': 'Standard Estimate',
+    'cart.package_premium': 'Premium Estimate',
+    'cart.delivery_basic': '2-3 business days',
+    'cart.delivery_standard': '1-2 business days',
+    'cart.delivery_premium': 'Same day',
+    'cart.selected': 'Selected',
+    'cart.includes_title': 'What your selected package includes:',
+    'cart.always_included': 'Always included:',
+    'cart.additional_features': 'Additional per package:',
+    'cart.feature_codes': 'Construction codes',
+    'cart.feature_estimate': 'Professional Xactimate estimate',
+    'cart.feature_pricing': 'Updated market pricing',
+    'cart.feature_support_letter': 'Insurance support letter',
+    'cart.feature_diagrams': 'Technical diagrams and schematics',
+    'cart.feature_revision': 'One revision included',
+    'cart.total': 'Total:',
+    'cart.symbility_extra': 'Symbility Format (extra)',
+    'cart.measurements_full': 'Full Measurements',
+    'cart.measurements_roof': 'Roof Only Measurements',
+    
+    // Checkout
+    'checkout.title': 'Checkout',
+    'checkout.subtitle': 'Complete your order to get started on your professional estimate.',
+    'checkout.order_summary': 'Order Summary',
+    'checkout.delivery': 'Delivery:',
+    'checkout.card_number': 'Card Number',
+    'checkout.card_number_placeholder': '1234 5678 9012 3456',
+    'checkout.expiry_date': 'Expiry Date',
+    'checkout.expiry_placeholder': 'MM/YY',
+    'checkout.cvv': 'CVV',
+    'checkout.cvv_placeholder': '123',
+    'checkout.cardholder_name': 'Cardholder Name',
+    'checkout.cardholder_placeholder': 'John Doe',
+    'checkout.billing_address': 'Billing Address',
+    'checkout.billing_placeholder': '123 Main St',
+    'checkout.city': 'City',
+    'checkout.city_placeholder': 'City',
+    'checkout.state': 'State',
+    'checkout.state_placeholder': 'State',
+    'checkout.zip_code': 'ZIP Code',
+    'checkout.zip_placeholder': '12345',
+    'checkout.security_note': 'Your payment information is secure and encrypted.',
+    'checkout.processing': 'Processing...',
+    'checkout.complete_payment': 'Complete',
+    
+    // Order Complete
+    'complete.title': 'Order Complete!',
+    'complete.subtitle': 'Thank you for your order. We\'ve received your information and will begin processing your Xactimate estimate immediately.',
+    'complete.what_next': 'What happens next?',
+    'complete.review_time': '• Our team will review your submission within 2 hours',
+    'complete.email_confirmation': '• You\'ll receive an email confirmation with your order details',
+    'complete.delivery_time': '• Your estimate will be delivered within',
+    'complete.dashboard_access': '• You\'ll get access to your personal dashboard to track progress',
+    'complete.estimated_delivery': 'Estimated Delivery',
+    'complete.order_confirmation': 'Order Confirmation',
+    'complete.sent_to': 'Sent to',
+    'complete.order_summary_title': 'Order Summary',
+    'complete.property': 'Property:',
+    'complete.loss_type': 'Type of Loss:',
+    'complete.scope_items': 'Scope Items:',
+    'complete.scope_selected': 'selected',
+    'complete.format': 'Format:',
+    'complete.measurements': 'Measurements:',
+    'complete.download_receipt': 'Download Order Receipt',
+    'complete.track_order': 'Track Order Status',
+    
+    // File Upload
+    'file.drag_drop': 'Drag and drop or click to browse',
+    'file.choose_files': 'Choose Files',
+    'file.max_size': 'Maximum',
+    'file.per_file': 'per file',
+    'file.selected_files': 'Selected files:',
+    'file.too_large': 'is too large. Maximum',
+    'file.file_error': 'File',
+    
+    // Footer
+    'footer.description': 'Professional estimate specialists for contractors. Fast and reliable service.',
+    'footer.contact': 'Contact',
+    'footer.office': 'Office',
+    'footer.rights': 'All rights reserved.',
+    
+    // Validation messages
+    'validation.cancel_message': 'Are you sure you want to cancel? All entered information will be lost.',
+    'validation.required': 'This field is required',
+    'validation.email_invalid': 'Please enter a valid email address',
+    'validation.phone_invalid': 'Please enter a valid phone number',
+    'validation.email_required': 'Email address is required',
+    'validation.name_required': 'Full name is required',
+    'validation.company_required': 'Company name is required',
+    'validation.address_required': 'Address is required',
+    'validation.phone_required': 'Phone number is required',
+    
+    // Theme
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'theme.system': 'System',
+    
+    // Language
+    'language.spanish': 'Español',
+    'language.english': 'English',
+    
+    // Loss types
+    'loss_type.fire': 'Fire',
+    'loss_type.water': 'Water',
+    'loss_type.storm': 'Storm',
+    'loss_type.theft': 'Theft',
+    'loss_type.vandalism': 'Vandalism',
+    'loss_type.earthquake': 'Earthquake',
+    'loss_type.flood': 'Flood',
+    'loss_type.wind': 'Wind',
+    'loss_type.hail': 'Hail',
+    'loss_type.other': 'Other'
+  }
+};
+
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem('language') as Language;
+    return saved || 'es';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  const t = (key: string): string => {
+    const currentTranslations = translations[language];
+    const fallbackTranslations = translations['es'];
+    
+    // Try current language first
+    if (currentTranslations && currentTranslations[key]) {
+      return currentTranslations[key];
+    }
+    
+    // Try fallback language
+    if (fallbackTranslations && fallbackTranslations[key]) {
+      return fallbackTranslations[key];
+    }
+    
+    // Return key if no translation found
+    return key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
