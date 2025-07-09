@@ -109,6 +109,18 @@ html {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+  
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Ensure cards don't overflow */
+  .max-w-2xl,
+  .max-w-4xl,
+  .max-w-6xl {
+    max-width: calc(100vw - 2rem);
+  }
 }
 
 /* Loading animation improvements */

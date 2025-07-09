@@ -149,7 +149,7 @@ function AppContent() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-500 flex flex-col">
       <Header />
       
-      <div className="max-w-6xl mx-auto px-4 py-8 flex-1">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 flex-1">
         {!isComplete ? (
           <>
             <ProgressIndicator currentStep={currentStep} steps={activeSteps} />

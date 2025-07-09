@@ -171,7 +171,7 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6" onKeyPress={handleKeyPress}>
+    <div className="max-w-2xl mx-auto" onKeyPress={handleKeyPress}>
       <AnimatedCard className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('client.title')}</h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6">

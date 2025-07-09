@@ -10,21 +10,21 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200" role="banner">
-      <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-shrink-0">
             <img 
               src="https://yourfiles.cloud/uploads/fc5c58333bc9e1b2be4c3999d406e0bb/Untitled-1-3-removebg-preview.png" 
               alt="LBS Logo"
-              className="h-8 w-8 sm:h-10 sm:w-10"
+              className="h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10"
             />
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">{t('header.title')}</h1>
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate">{t('header.title')}</h1>
               <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{t('header.subtitle')}</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
             <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-sm text-gray-600 dark:text-gray-300">
               <div className="flex items-center space-x-2 min-w-0">
                 <Phone className="h-4 w-4" />
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
         
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="lg:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-200">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
