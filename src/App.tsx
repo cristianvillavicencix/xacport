@@ -146,10 +146,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-500 flex flex-col">
       <Header />
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 flex-1">
         {!isComplete ? (
           <>
             <ProgressIndicator currentStep={currentStep} steps={activeSteps} />
@@ -162,7 +162,9 @@ function AppContent() {
         )}
       </div>
       
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
       
       <ConfirmDialog
         isOpen={showCancelDialog}
