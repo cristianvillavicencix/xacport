@@ -357,6 +357,8 @@ const MeasurementsPhotos: React.FC<MeasurementsPhotosProps> = ({ onNext, onPrev,
                 title={t('measurements.upload_photos_title')}
                 description={t('measurements.upload_photos_desc')}
                 className="mb-6"
+                allowCamera={true}
+                allowCamera={false}
               />
             )}
           </AnimatedCard>

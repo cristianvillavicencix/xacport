@@ -146,6 +146,7 @@ const LossSummary: React.FC<LossSummaryProps> = ({ onNext, onPrev, onCancel, for
                 onFileRemove={() => setFile(null)}
                 title={t('loss.upload_scope')}
                 description={t('loss.upload_scope_desc')}
+                allowCamera={false}
               />
             </div>
           </div>
@@ -198,6 +199,7 @@ const LossSummary: React.FC<LossSummaryProps> = ({ onNext, onPrev, onCancel, for
                 onFileRemove={removeAdditionalFile}
                 title={t('loss.upload_additional')}
                 description={t('loss.upload_additional_desc')}
+                allowCamera={true}
               />
             )}
           </div>

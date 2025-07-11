@@ -4,6 +4,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
 import AnimatedCard from '../ui/AnimatedCard';
 import FormField from '../ui/FormField';
+import AddressAutocomplete from '../ui/AddressAutocomplete';
 import LoadingButton from '../ui/LoadingButton';
 
 interface JobClaimInformationProps {
@@ -152,7 +153,24 @@ const JobClaimInformation: React.FC<JobClaimInformationProps> = ({ onNext, onPre
               {t('job.property_info')}
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t('job.property_address')} *
+                </label>
+                <AddressAutocomplete
+                  value={jobClaimData.propertyAddress}
+                  onChange={(value, details) => {
+                    handleInputChange('propertyAddress', value);
+                    if (details) {
+                      console.log('Address details:', details);
+                    }
+                  }}
+                  placeholder={t('job.property_address_placeholder')}
+                  required={true}
+                />
+              </div>
+              
+              {/* <FormField
                 label={t('job.property_address')}
                 placeholder={t('job.property_address_placeholder')}
                 value={jobClaimData.propertyAddress}
@@ -160,7 +178,7 @@ const JobClaimInformation: React.FC<JobClaimInformationProps> = ({ onNext, onPre
                 validation={{ required: true, minLength: 10 }}
                 icon={<MapPin className="h-4 w-4" />}
                 autoComplete="address-line1"
-              />
+              /> */}
 
               <FormField
                 label={t('job.homeowner_name')}
