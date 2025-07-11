@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import AnimatedCard from './AnimatedCard';
 
 interface FormFieldProps {
   label: string;
