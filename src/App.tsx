@@ -20,6 +20,7 @@ import Checkout from './components/steps/Checkout';
 import OrderComplete from './components/steps/OrderComplete';
 import Footer from './components/Footer';
 import OfflineIndicator from './components/OfflineIndicator';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 function AppContent() {
   const { t } = useLanguage();
@@ -176,6 +177,8 @@ function AppContent() {
         onCancel={handleCancelCancel}
         type="danger"
       />
+      
+      <PWAInstallPrompt />
     </div>
   );
 }
