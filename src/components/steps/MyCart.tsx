@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { ShoppingCart, FileText, Clock, DollarSign, Code, Mail, PenTool, RefreshCw, Eye } from 'lucide-react';
+import { ShoppingCart, FileText, Clock, DollarSign, Code, Mail, PenTool, RefreshCw } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
 import AnimatedCard from '../ui/AnimatedCard';
 import LoadingButton from '../ui/LoadingButton';
-import PDFPreview from '../ui/PDFPreview';
 
 interface MyCartProps {
   onNext: () => void;
@@ -20,7 +19,6 @@ const MyCart: React.FC<MyCartProps> = ({ onNext, onPrev, onCancel, formData, set
   const { showSuccess } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState('standard');
-  const [showPDFPreview, setShowPDFPreview] = useState(false);
 
   // Handle Enter key press
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -270,21 +268,12 @@ const MyCart: React.FC<MyCartProps> = ({ onNext, onPrev, onCancel, formData, set
 
           <div className="flex flex-col sm:flex-row gap-4">
             <LoadingButton
-              onClick={() => setShowPDFPreview(true)}
-              variant="secondary"
-              size="lg"
-              className="w-full sm:flex-1"
-              icon={<Eye className="h-5 w-5" />}
-            >
-              Vista Previa
-            </LoadingButton>
-            <LoadingButton
               onClick={onPrev}
               variant="secondary"
               size="lg"
-              className="w-full sm:flex-none sm:px-8"
+              className="w-full sm:flex-1"
             >
-              Atrás
+              {t('button.back')}
             </LoadingButton>
             <LoadingButton
               onClick={handleNext}
@@ -294,21 +283,10 @@ const MyCart: React.FC<MyCartProps> = ({ onNext, onPrev, onCancel, formData, set
               className="w-full sm:flex-1"
               icon={<ShoppingCart className="h-5 w-5" />}
             >
-              Proceder al Checkout
+              {t('button.proceed_checkout')}
             </LoadingButton>
           </div>
         </div>
-        
-        {/* PDF Preview Modal */}
-        {showPDFPreview && (
-          <PDFPreview
-            formData={formData}
-            onClose={() => setShowPDFPreview(false)}
-            onDownload={() => {
-              showSuccess('PDF descargado', 'Vista previa del estimado descargada');
-            }}
-          />
-        )}
       </AnimatedCard>
     </div>
   );
