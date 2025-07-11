@@ -20,6 +20,13 @@ interface AddressSuggestion {
   };
 }
 
+// Declare Google Maps types
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   value,
   onChange,
@@ -33,47 +40,88 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const autocompleteService = useRef<any>(null);
+  const placesService = useRef<any>(null);
 
-  // Mock Google Places API - In production, replace with actual Google Places API
-  const mockAddresses = [
-    "123 Main Street, Miami, FL 33101, USA",
-    "456 Ocean Drive, Miami Beach, FL 33139, USA",
-    "789 Biscayne Boulevard, Miami, FL 33132, USA",
-    "321 Lincoln Road, Miami Beach, FL 33139, USA",
-    "654 Collins Avenue, Miami Beach, FL 33140, USA",
-    "987 Washington Avenue, Miami Beach, FL 33139, USA",
-    "147 Flagler Street, Miami, FL 33130, USA",
-    "258 Coral Way, Miami, FL 33145, USA",
-    "369 Calle Ocho, Miami, FL 33135, USA",
-    "741 Miracle Mile, Coral Gables, FL 33134, USA"
-  ];
+  // Check if Google Maps is loaded
+  useEffect(() => {
+    const checkGoogleMaps = () => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        setIsGoogleLoaded(true);
+        autocompleteService.current = new window.google.maps.places.AutocompleteService();
+        // Create a dummy div for PlacesService (required by Google)
+        const dummyDiv = document.createElement('div');
+        placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
+      } else {
+        // Retry after 100ms if Google Maps isn't loaded yet
+        setTimeout(checkGoogleMaps, 100);
+      }
+    };
+
+    checkGoogleMaps();
+  }, []);
 
   const searchAddresses = async (query: string): Promise<AddressSuggestion[]> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const filtered = mockAddresses
-      .filter(address => 
-        address.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, 5)
-      .map((address, index) => ({
-        place_id: `place_${index}`,
-        description: address,
-        structured_formatting: {
-          main_text: address.split(',')[0],
-          secondary_text: address.split(',').slice(1).join(',').trim()
-        }
-      }));
+    if (!isGoogleLoaded || !autocompleteService.current) {
+      console.warn('Google Maps not loaded yet');
+      return [];
+    }
 
-    return filtered;
+    return new Promise((resolve) => {
+      const request = {
+        input: query,
+        types: ['address'],
+        componentRestrictions: { country: 'us' }, // Restrict to US addresses
+      };
+
+      autocompleteService.current.getPlacePredictions(
+        request,
+        (predictions: any[], status: any) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+            const formattedSuggestions = predictions.slice(0, 5).map((prediction) => ({
+              place_id: prediction.place_id,
+              description: prediction.description,
+              structured_formatting: {
+                main_text: prediction.structured_formatting.main_text,
+                secondary_text: prediction.structured_formatting.secondary_text || ''
+              }
+            }));
+            resolve(formattedSuggestions);
+          } else {
+            resolve([]);
+          }
+        }
+      );
+    });
+  };
+
+  const getPlaceDetails = async (placeId: string): Promise<any> => {
+    if (!isGoogleLoaded || !placesService.current) {
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      const request = {
+        placeId: placeId,
+        fields: ['formatted_address', 'address_components', 'geometry', 'name']
+      };
+
+      placesService.current.getDetails(request, (place: any, status: any) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          resolve(place);
+        } else {
+          resolve(null);
+        }
+      });
+    });
   };
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (value.length < 3) {
+      if (value.length < 3 || !isGoogleLoaded) {
         setSuggestions([]);
         setShowSuggestions(false);
         return;
@@ -96,17 +144,22 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
     const debounceTimer = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(debounceTimer);
-  }, [value]);
+  }, [value, isGoogleLoaded]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
 
-  const handleSuggestionClick = (suggestion: AddressSuggestion) => {
+  const handleSuggestionClick = async (suggestion: AddressSuggestion) => {
+    // Get detailed place information
+    const placeDetails = await getPlaceDetails(suggestion.place_id);
+    
     onChange(suggestion.description, {
       place_id: suggestion.place_id,
-      formatted_address: suggestion.description
+      formatted_address: suggestion.description,
+      place_details: placeDetails
     });
+    
     setShowSuggestions(false);
     setSelectedIndex(-1);
   };
@@ -160,13 +213,13 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           onBlur={handleBlur}
           onFocus={() => value.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={placeholder}
-          disabled={disabled}
+          disabled={disabled || !isGoogleLoaded}
           required={required}
           className={`
             w-full px-3 py-2 pl-10 pr-10 border rounded-md 
             focus:outline-none focus:ring-2 focus:border-transparent
             transition-all duration-300 ease-in-out
-            ${disabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-700'}
+            ${disabled || !isGoogleLoaded ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-700'}
             text-gray-900 dark:text-white
             placeholder-gray-500 dark:placeholder-gray-400
             border-gray-300 dark:border-gray-500 focus:ring-blue-500
@@ -179,6 +232,12 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         
         {isLoading && (
           <Loader2 className="absolute right-3 top-2.5 h-4 w-4 text-blue-500 animate-spin" />
+        )}
+
+        {!isGoogleLoaded && (
+          <div className="absolute right-3 top-2.5">
+            <div className="h-4 w-4 bg-yellow-400 rounded-full animate-pulse" title="Cargando Google Maps..." />
+          </div>
         )}
       </div>
 
@@ -214,6 +273,19 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
               </div>
             </button>
           ))}
+          
+          <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+            <div className="flex items-center space-x-1">
+              <span>Powered by</span>
+              <span className="font-semibold">Google</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isGoogleLoaded && (
+        <div className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+          Cargando servicio de direcciones...
         </div>
       )}
     </div>
