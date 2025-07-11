@@ -189,3 +189,5 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     </div>
   );
 };
+
+export default AddressAutocomplete
