@@ -11,6 +11,7 @@ interface LoadingButtonProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   icon?: React.ReactNode;
+  pulse?: boolean;
 }
 
 const LoadingButton: React.FC<LoadingButtonProps> = ({
@@ -22,20 +23,21 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
   variant = 'primary',
   size = 'md',
   className = '',
-  icon
+  icon,
+  pulse = false
 }) => {
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-blue-600';
+        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-blue-600 hover:shadow-lg hover:shadow-blue-500/25';
       case 'secondary':
-        return 'bg-gray-400 hover:bg-gray-500 focus:ring-gray-500 text-white border-gray-400';
+        return 'bg-gray-400 hover:bg-gray-500 focus:ring-gray-500 text-white border-gray-400 hover:shadow-lg hover:shadow-gray-500/25';
       case 'success':
-        return 'bg-green-600 hover:bg-green-700 focus:ring-green-500 text-white border-green-600';
+        return 'bg-green-600 hover:bg-green-700 focus:ring-green-500 text-white border-green-600 hover:shadow-lg hover:shadow-green-500/25';
       case 'danger':
-        return 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white border-red-600';
+        return 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white border-red-600 hover:shadow-lg hover:shadow-red-500/25';
       default:
-        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-blue-600';
+        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-blue-600 hover:shadow-lg hover:shadow-blue-500/25';
     }
   };
 
@@ -64,14 +66,16 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
       className={`
         relative inline-flex items-center justify-center
         font-medium rounded-lg border
-        transition-colors duration-200 ease-in-out
+        transition-all duration-300 ease-in-out
         focus:outline-none focus:ring-2 focus:ring-offset-2
+        transform hover:scale-105 active:scale-95
         ${getVariantClasses()}
         ${getSizeClasses()}
         ${isDisabled 
-          ? 'opacity-50 cursor-not-allowed' 
-          : 'hover:shadow-md'
+          ? 'opacity-50 cursor-not-allowed transform-none' 
+          : 'hover:shadow-lg'
         }
+        ${pulse ? 'animate-pulse' : ''}
         ${className}
       `}
     >
@@ -80,10 +84,10 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
       )}
       
       {!loading && icon && (
-        <span className="mr-2" aria-hidden="true">{icon}</span>
+        <span className="mr-2 transition-transform duration-200 group-hover:scale-110" aria-hidden="true">{icon}</span>
       )}
       
-      <span className={loading ? 'opacity-75' : ''}>
+      <span className={`transition-opacity duration-200 ${loading ? 'opacity-75' : ''}`}>
         {children}
       </span>
     </button>

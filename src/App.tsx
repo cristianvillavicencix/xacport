@@ -5,10 +5,12 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { useFormPersistence } from './hooks/useFormPersistence';
 import { useAutoScroll } from './hooks/useAutoScroll';
+import { useAutoSave } from './hooks/useAutoSave';
 import { clearFormData } from './utils/storage';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import StepTransition from './components/ui/StepTransition';
 import ProgressIndicator from './components/ui/ProgressIndicator';
+import AutoSaveIndicator from './components/ui/AutoSaveIndicator';
 import Header from './components/Header';
 import ClientRegistration from './components/steps/ClientRegistration';
 import LossSummary from './components/steps/LossSummary';
@@ -47,6 +49,12 @@ function AppContent() {
   // Enable auto scroll when step changes
   useAutoScroll(currentStep);
 
+  // Auto-save functionality
+  const { lastSaved, isSaving, hasUnsavedChanges } = useAutoSave({
+    data: formData,
+    interval: 30000, // 30 seconds
+    enabled: !isComplete && Object.keys(formData).length > 0
+  });
   // Dynamic steps based on whether user has existing scope
   const getActiveSteps = () => {
     const shouldSkipJobInfo = formData.hasExistingScope === true;
@@ -151,6 +159,13 @@ function AppContent() {
       <Header />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 flex-1">
+        {/* Auto-save indicator */}
+        {!isComplete && Object.keys(formData).length > 0 && (
+          <div className="mb-4 flex justify-end">
+            <AutoSaveIndicator data={formData} />
+          </div>
+        )}
+        
         {!isComplete ? (
           <>
             <ProgressIndicator currentStep={currentStep} steps={activeSteps} />
@@ -179,6 +194,7 @@ function AppContent() {
       />
       
       <PWAInstallPrompt />
+      <OfflineIndicator />
     </div>
   );
 }

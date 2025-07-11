@@ -237,6 +237,7 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   validation={{ required: true, minLength: 2 }}
                   icon={<User className="h-4 w-4" />}
                   autoComplete="name"
+                  realTimeValidation={true}
                 />
 
                 <FormField
@@ -247,6 +248,7 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   validation={{ required: true, minLength: 10 }}
                   icon={<MapPin className="h-4 w-4" />}
                   autoComplete="address-line1"
+                  realTimeValidation={true}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -258,10 +260,19 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                     onChange={(value) => handleInputChange('email', value)}
                     validation={{ 
                       required: true, 
-                      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ 
+                      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      async: async (email) => {
+                        // Simulate email validation
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        if (email === 'test@blocked.com') {
+                          return 'Este email no está disponible';
+                        }
+                        return null;
+                      }
                     }}
                     icon={<Mail className="h-4 w-4" />}
                     autoComplete="email"
+                    realTimeValidation={true}
                   />
 
                   <FormField
@@ -279,13 +290,15 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                     }}
                     icon={<Phone className="h-4 w-4" />}
                     autoComplete="tel"
+                    realTimeValidation={true}
                   />
                 </div>
               </div>
             </fieldset>
 
             {/* Información de la Empresa */}
-            <fieldset>
+            <AnimatedCard delay={200} direction="up">
+              <fieldset>
               <legend className="font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <Building className="h-5 w-5 mr-2 text-green-600" aria-hidden="true" />
                 {t('client.company_info')}
@@ -299,13 +312,18 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   validation={{ required: true, minLength: 2 }}
                   icon={<Building className="h-4 w-4" />}
                   autoComplete="organization"
+                  realTimeValidation={true}
                 />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t('client.company_logo')}
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
+                  <AnimatedCard 
+                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-[1.02]"
+                    hover={true}
+                    scale={true}
+                  >
                     <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" aria-hidden="true" />
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('client.company_logo_desc')}</p>
                     <input
@@ -317,16 +335,16 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                     />
                     <label
                       htmlFor="logo-upload"
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                      className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-300 hover:scale-105 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                     >
                       {t('button.select_file')}
                     </label>
                     {clientData.companyLogo && (
-                      <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+                      <AnimatedCard className="mt-2 text-sm text-green-600 dark:text-green-400 glow-green" direction="down" delay={0}>
                         {t('client.logo_selected')} {(clientData.companyLogo as File).name}
-                      </p>
+                      </AnimatedCard>
                     )}
-                  </div>
+                  </AnimatedCard>
                 </div>
 
                 <div>
@@ -335,12 +353,12 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   </label>
                   
                   <div className="mb-3">
-                    <label className="flex items-center space-x-2 cursor-pointer">
+                    <label className="flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform duration-200">
                       <input
                         type="checkbox"
                         checked={clientData.sameAddress}
                         onChange={handleSameAddressToggle}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded transition-colors duration-200"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded transition-all duration-300 hover:scale-110"
                       />
                       <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center">
                         <Copy className="h-4 w-4 mr-1" aria-hidden="true" />
@@ -350,33 +368,45 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   </div>
 
                   {!clientData.sameAddress && (
-                    <FormField
-                      label=""
-                      placeholder={t('client.company_address_placeholder')}
-                      value={clientData.companyAddress}
-                      onChange={(value) => handleInputChange('companyAddress', value)}
-                      validation={{ required: !clientData.sameAddress, minLength: 10 }}
-                      icon={<MapPin className="h-4 w-4" />}
-                      autoComplete="address-line1"
-                    />
+                    <AnimatedCard direction="down" delay={0}>
+                      <FormField
+                        label=""
+                        placeholder={t('client.company_address_placeholder')}
+                        value={clientData.companyAddress}
+                        onChange={(value) => handleInputChange('companyAddress', value)}
+                        validation={{ required: !clientData.sameAddress, minLength: 10 }}
+                        icon={<MapPin className="h-4 w-4" />}
+                        autoComplete="address-line1"
+                        realTimeValidation={true}
+                      />
+                    </AnimatedCard>
                   )}
 
                   {clientData.sameAddress && (
-                    <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md p-3">
+                    <AnimatedCard 
+                      className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md p-3"
+                      direction="down"
+                      delay={0}
+                    >
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {t('client.address_info')} {clientData.contactAddress || t('client.address_enter_first')}
                       </p>
-                    </div>
+                    </AnimatedCard>
                   )}
                 </div>
               </div>
-            </fieldset>
+              </fieldset>
+            </AnimatedCard>
           </div>
         )}
 
         {isExistingClient === true && (
-          <div className="space-y-4">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <AnimatedCard direction="up" delay={100} className="space-y-4">
+            <AnimatedCard 
+              className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
+              hover={true}
+              scale={true}
+            >
               <div className="flex items-start space-x-3">
                 <User className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
                 <div>
@@ -386,7 +416,7 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
                   </p>
                 </div>
               </div>
-            </div>
+            </AnimatedCard>
             
             <FormField
               label={t('client.email')}
@@ -400,11 +430,12 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
               }}
               icon={<Mail className="h-4 w-4" />}
               autoComplete="email"
+              realTimeValidation={true}
             />
-          </div>
+          </AnimatedCard>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+        <AnimatedCard direction="up" delay={300} className="flex flex-col sm:flex-row gap-4 mt-6">
           <LoadingButton
             onClick={handleNext}
             loading={isLoading}
@@ -412,10 +443,11 @@ const ClientRegistration: React.FC<ClientRegistrationProps> = ({ onNext, onCance
             variant="primary"
             size="lg"
             className="w-full sm:flex-1"
+            pulse={isFormValid()}
           >
             {isExistingClient === true ? t('button.continue') : t('button.register_continue')}
           </LoadingButton>
-        </div>
+        </AnimatedCard>
       </AnimatedCard>
     </div>
   );
